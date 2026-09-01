@@ -1,8 +1,10 @@
 # TripSync – Smart Group Trip Planner & Expense Tracker
 
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen) ![Java](https://img.shields.io/badge/java-17-orange) ![Jakarta Servlets](https://img.shields.io/badge/jakarta--servlet-6.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen) ![Java](https://img.shields.io/badge/java-17-orange) ![Jakarta Servlets](https://img.shields.io/badge/jakarta--servlet-6.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Vercel](https://img.shields.io/badge/vercel-deployable-black) ![Docker](https://img.shields.io/badge/docker-ready-blue)
 
 > **Plan together. Spend transparently. Travel safely. Preserve memories.**
+
+![TripSync Dashboard Preview](docs/preview.png)
 
 TripSync is a full-stack group trip management platform built for college students. It replaces scattered messaging groups and spreadsheets with one centralized system for planning, expense tracking, safety, and preserving trip memories.
 
@@ -16,7 +18,7 @@ TripSync is a full-stack group trip management platform built for college studen
 | **Frontend** | HTML5, CSS3, Vanilla JavaScript (SPA), Fetch API |
 | **Architecture** | DAO Pattern, JDBC Utility, REST-style Servlets, Session Auth |
 | **Testing & CI** | JUnit 5, Mockito, H2 Database (In-Memory) |
-| **Containers** | Docker, Docker Compose, Tomcat 10.1 |
+| **Containers & Cloud** | Docker, Docker Compose, Tomcat 10.1, Vercel (`vercel.json`) |
 
 ---
 
@@ -41,21 +43,29 @@ flowchart TD
 
 ## Features
 
-- **Authentication** – Register, login, forgot/reset password, session management
-- **Trip Management** – Create trips, invite codes, join via code, role-based access
-- **Expense Tracker** – Categories, splits, receipt support, budget warnings
-- **Settlement Calculator** – Minimum-transaction "who owes whom" algorithm
-- **Itinerary Builder** – Day-wise plans with member suggestions
-- **Shared Checklist** – Packing coordination (Bringing / Not Bringing)
-- **Emergency & Safety** – Trusted contacts, emergency info, live location
-- **Memory Vault** – Photos, captions, likes, organized by day/location
-- **Analytics** – Budget vs spent, category breakdown, member balances
+- **Authentication** – Register, login, forgot/reset password, session management.
+- **Trip Management** – Create trips, generate 8-character invite codes, join via code, role-based access.
+- **Expense Tracker** – Category tagging, custom splits, receipt uploads, budget warnings.
+- **Settlement Calculator** – Minimum-transaction "who owes whom" greedy algorithm.
+- **Itinerary Builder** – Day-wise plans with member activity suggestions.
+- **Shared Checklist** – Packing coordination (Bringing / Not Bringing status).
+- **Emergency & Safety** – Trusted contacts, emergency info, live location sharing.
+- **Memory Vault** – Photo gallery, captions, likes, organized by day/location.
+- **Analytics** – Budget vs spent, category breakdown pie charts, member net balances.
 
 ---
 
 ## Setup & Deployment
 
-### Option 1: Docker Compose (Recommended)
+### Option 1: Vercel Deployment (Frontend WebApp)
+
+TripSync includes a custom `vercel.json` for single-page web app hosting on Vercel:
+
+1. Import the repository into [Vercel Dashboard](https://vercel.com/new).
+2. Set Root Directory to `SmartGroupTripPlannerAndExpenseTracker`.
+3. Deploy!
+
+### Option 2: Docker Compose (Full Stack Tomcat + MySQL)
 
 Run the database and Tomcat application with 1 command:
 
@@ -64,23 +74,23 @@ docker compose up --build -d
 ```
 Access the application at `http://localhost:8080/`.
 
-### Option 2: Local Manual Setup
+### Option 3: Local Manual Setup
 
 #### Prerequisites
 - Java 17+
 - Maven 3.8+
 - MySQL 8+
-- Tomcat 10+ (Jakarta EE 10)
+- Apache Tomcat 10+ (Jakarta EE 10)
 
 #### 1. Database Setup
 ```bash
 mysql -u root -p < database/schema.sql
 ```
 
-#### 2. Configuration
+#### 2. Environment Configuration
+`JdbcUtil` dynamically detects environment variables (`DB_URL`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`). Alternatively, set `db.properties`:
 ```bash
 cp src/main/resources/db.properties.example src/main/resources/db.properties
-# Configure MySQL credentials in db.properties
 ```
 
 #### 3. Build & Run Tests
