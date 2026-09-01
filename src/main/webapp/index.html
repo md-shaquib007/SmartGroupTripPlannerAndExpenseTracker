@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripSync – Smart Group Trip Planner</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="bi bi-compass"></i>
+            <span>TripSync</span>
+        </div>
+        <div class="nav-actions" id="navActions"></div>
+    </nav>
+
+    <main id="app">
+        <!-- Landing (unauthenticated) -->
+        <section id="landingView" class="view">
+            <div class="hero">
+                <h1>Plan together. Spend transparently.<br>Travel safely. Preserve memories.</h1>
+                <p class="tagline">One platform for college trips — expenses, itineraries, checklists, and memories.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary" onclick="App.showView('login')">Sign In</button>
+                    <button class="btn btn-outline" onclick="App.showView('register')">Create Account</button>
+                </div>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card"><i class="bi bi-wallet2"></i><h3>Expense Tracker</h3><p>Split costs fairly and settle up with minimum transactions.</p></div>
+                <div class="feature-card"><i class="bi bi-map"></i><h3>Itinerary Builder</h3><p>Day-wise plans that never get lost in chat.</p></div>
+                <div class="feature-card"><i class="bi bi-shield-check"></i><h3>Emergency & Safety</h3><p>Trusted contacts and emergency info always accessible.</p></div>
+                <div class="feature-card"><i class="bi bi-images"></i><h3>Memory Vault</h3><p>Photos, videos, and timeline — preserved forever.</p></div>
+            </div>
+        </section>
+
+        <!-- Auth views -->
+        <section id="loginView" class="view hidden">
+            <div class="auth-card">
+                <h2>Welcome back</h2>
+                <form id="loginForm">
+                    <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+                    <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
+                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                </form>
+                <p class="auth-link"><a href="#" onclick="App.showView('forgot'); return false;">Forgot password?</a></p>
+                <p class="auth-link">No account? <a href="#" onclick="App.showView('register'); return false;">Register</a></p>
+            </div>
+        </section>
+
+        <section id="registerView" class="view hidden">
+            <div class="auth-card">
+                <h2>Create account</h2>
+                <form id="registerForm">
+                    <div class="form-group"><label>Name</label><input type="text" name="name" required></div>
+                    <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+                    <div class="form-group"><label>Phone</label><input type="tel" name="phone"></div>
+                    <div class="form-group"><label>Password</label><input type="password" name="password" required minlength="6"></div>
+                    <button type="submit" class="btn btn-primary btn-block">Register</button>
+                </form>
+                <p class="auth-link">Already have an account? <a href="#" onclick="App.showView('login'); return false;">Sign in</a></p>
+            </div>
+        </section>
+
+        <section id="forgotView" class="view hidden">
+            <div class="auth-card">
+                <h2>Reset password</h2>
+                <form id="forgotForm">
+                    <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+                    <button type="submit" class="btn btn-primary btn-block">Send Reset Link</button>
+                </form>
+                <div id="resetTokenDisplay" class="hidden token-display"></div>
+            </div>
+        </section>
+
+        <!-- Dashboard -->
+        <section id="dashboardView" class="view hidden">
+            <div class="page-header">
+                <h2>My Trips</h2>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="App.showJoinModal()"><i class="bi bi-qr-code"></i> Join Trip</button>
+                    <button class="btn btn-primary" onclick="App.showCreateTripModal()"><i class="bi bi-plus-lg"></i> New Trip</button>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="tripSearch" placeholder="Search trips or destinations..." oninput="App.searchTrips(this.value)">
+            </div>
+            <div id="tripsGrid" class="trips-grid"></div>
+        </section>
+
+        <!-- Trip Detail -->
+        <section id="tripDetailView" class="view hidden">
+            <div id="tripHeader" class="trip-header"></div>
+            <div class="tabs">
+                <button class="tab active" data-tab="overview" onclick="App.switchTab('overview')">Overview</button>
+                <button class="tab" data-tab="expenses" onclick="App.switchTab('expenses')">Expenses</button>
+                <button class="tab" data-tab="itinerary" onclick="App.switchTab('itinerary')">Itinerary</button>
+                <button class="tab" data-tab="checklist" onclick="App.switchTab('checklist')">Checklist</button>
+                <button class="tab" data-tab="memories" onclick="App.switchTab('memories')">Memories</button>
+                <button class="tab" data-tab="timeline" onclick="App.switchTab('timeline')">Timeline</button>
+            </div>
+            <div id="tabContent" class="tab-content"></div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="modalOverlay" class="modal-overlay hidden" onclick="App.closeModal()"></div>
+    <div id="modal" class="modal hidden"></div>
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

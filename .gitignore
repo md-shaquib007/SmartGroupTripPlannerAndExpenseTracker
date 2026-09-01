@@ -1,0 +1,7 @@
+tripsync/
+uploads/
+*.class
+target/
+.idea/
+*.iml
+src/main/resources/db.properties

@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "public": true,
+  "name": "tripsync",
+  "builds": [
+    {
+      "src": "src/main/webapp/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/css/(.*)",
+      "dest": "/src/main/webapp/css/$1"
+    },
+    {
+      "src": "/js/(.*)",
+      "dest": "/src/main/webapp/js/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/src/main/webapp/index.html"
+    }
+  ]
+}
