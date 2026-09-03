@@ -255,8 +255,15 @@ CREATE TABLE trip_ratings (
 -- Indexes for search and filters
 CREATE INDEX idx_trips_destination ON trips(destination);
 CREATE INDEX idx_trips_status ON trips(status);
+CREATE INDEX idx_trips_leader ON trips(leader_id);
 CREATE INDEX idx_expenses_trip ON expenses(trip_id);
+CREATE INDEX idx_expenses_paid_by ON expenses(paid_by);
 CREATE INDEX idx_expenses_category ON expenses(category);
 CREATE INDEX idx_expenses_date ON expenses(expense_date);
+CREATE INDEX idx_expense_splits_expense ON expense_splits(expense_id);
+CREATE INDEX idx_trip_members_user ON trip_members(user_id);
 CREATE INDEX idx_notifications_user ON notifications(user_id, is_read);
 CREATE INDEX idx_activity_trip ON activity_logs(trip_id, created_at);
+CREATE INDEX idx_users_reset_token ON users(reset_token);
+CREATE INDEX idx_memories_trip ON memories(trip_id);
+

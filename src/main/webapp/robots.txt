@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /api/
+Disallow: /WEB-INF/
+Allow: /
