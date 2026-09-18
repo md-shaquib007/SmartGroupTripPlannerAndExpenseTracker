@@ -1,4 +1,4 @@
-db.url=jdbc:mysql://localhost:3306/tripsync?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-db.username=root
-db.password=your_password
-upload.path=uploads
+dbUrl=jdbc:mysql://localhost:3306/tripsync?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+dbUsername=root
+dbPassword=your_password
+uploadPath=uploads
