@@ -9,12 +9,7 @@
   ],
   "routes": [
     {
-      "src": "/css/(.*)",
-      "dest": "/src/main/webapp/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/src/main/webapp/js/$1"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
