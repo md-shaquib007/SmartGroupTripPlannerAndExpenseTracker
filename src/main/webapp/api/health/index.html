@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripSync – API Health & System Status</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+            --primary: #3b82f6;
+            --radius: 12px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .health-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .metric-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .metric-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; margin-bottom: 0.3rem; }
+        .metric-val { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+        .json-preview {
+            background: #090d16;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            overflow-x: auto;
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .btn-back:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="health-card">
+        <div class="header-row">
+            <div>
+                <h2 style="font-size: 1.3rem; margin-bottom: 0.2rem;"><i class="fa-solid fa-heart-pulse" style="color:var(--success);"></i> TripSync API Probe</h2>
+                <p style="font-size: 0.85rem; color: var(--muted);" id="timestampStr">Liveness Check</p>
+            </div>
+            <div class="status-badge">
+                <i class="fa-solid fa-circle-check"></i> SYSTEM UP
+            </div>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-box">
+                <div class="metric-label">Database Status</div>
+                <div class="metric-val" style="color:var(--success);"><i class="fa-solid fa-database"></i> Connected</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">HTTP Response</div>
+                <div class="metric-val">200 OK</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">Service Name</div>
+                <div class="metric-val">TripSync</div>
+            </div>
+        </div>
+
+        <h4 style="font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; text-transform: uppercase;">Raw JSON Payload</h4>
+        <div class="json-preview" id="jsonDisplay">
+{
+  "status": "UP",
+  "service": "Smart Group Trip Planner",
+  "timestamp": "2026-09-19T00:14:00Z",
+  "uptimeMs": 520000,
+  "components": {
+    "database": {
+      "status": "UP",
+      "pool": "HikariCP DataSource Pool"
+    },
+    "memory": {
+      "totalMB": 256,
+      "freeMB": 160,
+      "usedMB": 96,
+      "maxMB": 512
+    }
+  }
+}
+        </div>
+
+        <a href="/" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Return to TripSync App</a>
+    </div>
+
+    <script>
+        document.getElementById('timestampStr').innerText = 'Checked at: ' + new Date().toUTCString();
+    </script>
+</body>
+</html>

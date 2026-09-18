@@ -1,6 +1,8 @@
-# Copy to db.properties for local use, or set dbUrl in the deployment environment.
+# Copy to db.properties for local use, or set neonDbUrl or dbUrl in the deployment environment.
 # Never commit real production credentials.
+neonDbUrl=
 dbUrl=jdbc:mysql://localhost:3306/tripsync?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 dbUsername=root
 dbPassword=your_password
 uploadPath=uploads
+
