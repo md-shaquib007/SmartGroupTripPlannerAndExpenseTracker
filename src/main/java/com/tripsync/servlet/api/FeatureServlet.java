@@ -52,7 +52,17 @@ public class FeatureServlet extends BaseServlet {
         User user = AuthFilter.currentUser(req);
         String servletPath = req.getServletPath();
         try {
-            long tripId = Long.parseLong(req.getParameter("tripId"));
+            if (servletPath.startsWith("/api/notifications")) {
+                JsonUtil.writeJson(resp, 200, activityDao.findUnreadByUser(user.getId()));
+                return;
+            }
+
+            String tripIdParam = req.getParameter("tripId");
+            if (tripIdParam == null || tripIdParam.isBlank()) {
+                JsonUtil.writeError(resp, 400, "tripId parameter is required");
+                return;
+            }
+            long tripId = Long.parseLong(tripIdParam);
 
             if (servletPath.startsWith("/api/itinerary")) {
                 tripService.requireMember(tripId, user.getId());
@@ -66,8 +76,6 @@ public class FeatureServlet extends BaseServlet {
             } else if (servletPath.startsWith("/api/analytics")) {
                 tripService.requireMember(tripId, user.getId());
                 JsonUtil.writeJson(resp, 200, buildAnalytics(tripId));
-            } else if (servletPath.startsWith("/api/notifications")) {
-                JsonUtil.writeJson(resp, 200, activityDao.findUnreadByUser(user.getId()));
             } else if (servletPath.startsWith("/api/emergency")) {
                 tripService.requireMember(tripId, user.getId());
                 JsonUtil.writeJson(resp, 200, emergencyDao.findByTripId(tripId));
@@ -84,8 +92,19 @@ public class FeatureServlet extends BaseServlet {
         User user = AuthFilter.currentUser(req);
         String servletPath = req.getServletPath();
         try {
+            if (servletPath.startsWith("/api/notifications")) {
+                activityDao.markAllRead(user.getId());
+                JsonUtil.writeJson(resp, 200, Map.of("message", "All notifications marked as read"));
+                return;
+            }
+
             JsonObject body = JsonUtil.parseBody(readBody(req));
-            long tripId = JsonUtil.getLong(body, "tripId");
+            Long tripIdVal = JsonUtil.getLong(body, "tripId");
+            if (tripIdVal == null) {
+                JsonUtil.writeError(resp, 400, "tripId is required");
+                return;
+            }
+            long tripId = tripIdVal;
 
             if (servletPath.startsWith("/api/itinerary")) {
                 tripService.requireLeader(tripId, user.getId());
@@ -131,9 +150,6 @@ public class FeatureServlet extends BaseServlet {
                 long id = memoryDao.create(memory);
                 activityDao.log(tripId, user.getId(), "MEMORY_UPLOADED", "New memory uploaded");
                 JsonUtil.writeJson(resp, 201, Map.of("id", id));
-            } else if (servletPath.startsWith("/api/notifications")) {
-                activityDao.markAllRead(user.getId());
-                JsonUtil.writeJson(resp, 200, Map.of("message", "All notifications marked as read"));
             } else if (servletPath.startsWith("/api/emergency")) {
                 tripService.requireLeader(tripId, user.getId());
                 EmergencyInfo info = new EmergencyInfo();

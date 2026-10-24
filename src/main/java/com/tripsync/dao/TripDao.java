@@ -51,6 +51,41 @@ public class TripDao {
         return trips;
     }
 
+    public List<Trip> searchForUser(String query, String status, long userId) throws SQLException {
+        List<Trip> trips = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(TRIP_SELECT + """
+                JOIN trip_members tm ON tm.trip_id = t.id
+                WHERE tm.user_id = ?
+                """);
+        List<Object> params = new ArrayList<>();
+        params.add(userId);
+
+        if (query != null && !query.isBlank()) {
+            sql.append(" AND (t.name LIKE ? OR t.destination LIKE ?)");
+            String like = "%" + query + "%";
+            params.add(like);
+            params.add(like);
+        }
+        if (status != null && !status.isBlank()) {
+            sql.append(" AND t.status = ?");
+            params.add(status);
+        }
+        sql.append(" ORDER BY t.start_date DESC LIMIT 50");
+
+        try (Connection conn = JdbcUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    trips.add(mapTrip(rs));
+                }
+            }
+        }
+        return trips;
+    }
+
     public List<Trip> search(String query, String status) throws SQLException {
         List<Trip> trips = new ArrayList<>();
         StringBuilder sql = new StringBuilder(TRIP_SELECT + " WHERE 1=1");

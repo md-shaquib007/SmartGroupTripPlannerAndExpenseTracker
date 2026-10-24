@@ -21,7 +21,8 @@ public class AuthFilter implements Filter {
             "/api/auth/login",
             "/api/auth/register",
             "/api/auth/forgot-password",
-            "/api/auth/reset-password"
+            "/api/auth/reset-password",
+            "/api/health"
     );
 
     @Override

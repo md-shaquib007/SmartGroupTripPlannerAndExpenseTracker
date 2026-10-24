@@ -32,6 +32,10 @@ public class ExpenseService {
                 ? splitAmongUserIds
                 : memberDao.findByTripId(expense.getTripId()).stream().map(TripMember::getUserId).toList();
 
+        if (splitUsers.isEmpty()) {
+            throw new IllegalArgumentException("No members to split expense");
+        }
+
         BigDecimal share = expense.getAmount().divide(
                 BigDecimal.valueOf(splitUsers.size()), 2, RoundingMode.HALF_UP);
 
@@ -49,7 +53,7 @@ public class ExpenseService {
     }
 
     public List<Expense> getExpenses(long tripId, long userId, String category, Long memberId,
-                                     java.time.LocalDate from, java.time.LocalDate to) throws SQLException {
+                                      java.time.LocalDate from, java.time.LocalDate to) throws SQLException {
         tripService.requireMember(tripId, userId);
         return expenseDao.findByTripId(tripId, category, memberId, from, to);
     }

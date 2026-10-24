@@ -37,8 +37,8 @@ public class TripServlet extends BaseServlet {
             if (path == null || "/".equals(path)) {
                 String q = req.getParameter("q");
                 String status = req.getParameter("status");
-                List<Trip> trips = q != null || status != null
-                        ? tripDao.search(q, status)
+                List<Trip> trips = (q != null || status != null)
+                        ? tripDao.searchForUser(q, status, user.getId())
                         : tripService.getUserTrips(user.getId());
                 JsonUtil.writeJson(resp, 200, trips);
                 return;

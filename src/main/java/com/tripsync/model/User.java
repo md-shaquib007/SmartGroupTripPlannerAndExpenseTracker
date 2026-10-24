@@ -6,7 +6,7 @@ public class User {
     private Long id;
     private String name;
     private String email;
-    private String passwordHash;
+    private transient String passwordHash;
     private String phone;
     private String avatarUrl;
     private boolean emailVerified;
