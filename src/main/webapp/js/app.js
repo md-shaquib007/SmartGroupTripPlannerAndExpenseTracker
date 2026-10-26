@@ -191,6 +191,58 @@ const App = {
 
         const warning = analytics.budgetWarning ? '<div class="stat-card" style="border-color:var(--warning)"><div class="label">⚠ Budget Alert</div><div class="value" style="color:var(--warning);font-size:1rem">80%+ spent</div></div>' : '';
 
+        // Dynamic Category Donut Chart
+        const catMap = analytics.byCategory || {};
+        const catKeys = Object.keys(catMap);
+        let chartHtml = '';
+        if (catKeys.length > 0 && Number(analytics.totalSpent) > 0) {
+            const colors = ['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'];
+            const total = Number(analytics.totalSpent);
+            const C = 251.327;
+            let cumulativeOffset = 0;
+            const slices = catKeys.map((cat, idx) => {
+                const val = Number(catMap[cat]) || 0;
+                const pct = val / total;
+                const dash = pct * C;
+                const offset = -cumulativeOffset;
+                cumulativeOffset += dash;
+                const col = colors[idx % colors.length];
+                return `<circle cx="50" cy="50" r="40" fill="transparent" stroke="${col}" stroke-width="16" stroke-dasharray="${dash.toFixed(2)} ${(C - dash).toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"><title>${esc(cat)}: ₹${val} (${Math.round(pct * 100)}%)</title></circle>`;
+            }).join('');
+
+            const legend = catKeys.map((cat, idx) => {
+                const val = Number(catMap[cat]) || 0;
+                const pct = Math.round((val / total) * 100);
+                const col = colors[idx % colors.length];
+                return `<div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;margin-bottom:6px;">
+                    <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0;"></span>
+                    <span style="font-weight:500;">${esc(cat)}</span>
+                    <span style="color:var(--text-muted);margin-left:auto;">₹${val} (${pct}%)</span>
+                </div>`;
+            }).join('');
+
+            chartHtml = `
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin:1rem 0;">
+                <h4 style="margin:0 0 1rem 0;font-size:1rem;display:flex;align-items:center;gap:6px;">
+                    <i class="bi bi-pie-chart" style="color:var(--primary)"></i> Category Spending Breakdown
+                </h4>
+                <div style="display:flex;align-items:center;justify-content:space-around;flex-wrap:wrap;gap:20px;">
+                    <div style="position:relative;width:130px;height:130px;">
+                        <svg viewBox="0 0 100 100" style="width:130px;height:130px;transform:rotate(-90deg);border-radius:50%;">
+                            ${slices}
+                        </svg>
+                        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+                            <small style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Spent</small>
+                            <strong style="font-size:0.9rem;">₹${analytics.totalSpent}</strong>
+                        </div>
+                    </div>
+                    <div style="flex:1;min-width:200px;max-width:320px;">
+                        ${legend}
+                    </div>
+                </div>
+            </div>`;
+        }
+
         el.innerHTML = `
             <div class="stats-grid">
                 <div class="stat-card"><div class="label">Budget</div><div class="value">₹${analytics.budget}</div></div>
@@ -198,7 +250,8 @@ const App = {
                 <div class="stat-card"><div class="label">Remaining</div><div class="value">₹${analytics.remaining}</div></div>
                 ${warning}
             </div>
-            <h3 style="margin-bottom:.75rem">Who Owes Whom</h3>
+            ${chartHtml}
+            <h3 style="margin-bottom:.75rem">Who Owes Whom</h3>`;
             ${settlements.length ? `<ul class="settlement-list">${settlements.map(s => `
                 <li style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:0.5rem;">
                     <span><strong>${esc(s.fromUserName)}</strong> owes <strong>₹${s.amount}</strong> to <strong>${esc(s.toUserName)}</strong></span>
@@ -215,16 +268,62 @@ const App = {
     async renderExpenses(el, tripId) {
         const expenses = await API.expenses.list(tripId);
         el.innerHTML = `
-            <div class="page-header"><h3>Expenses</h3>
-                <button class="btn btn-primary btn-sm" onclick="App.showExpenseModal()"><i class="bi bi-plus"></i> Add Expense</button>
+            <div class="page-header" style="flex-wrap:wrap;gap:10px;">
+                <h3 style="margin:0;">Expenses</h3>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    ${expenses.length ? `
+                    <button class="btn btn-outline btn-sm" onclick="App.exportExpensesCsv(${tripId})">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                    </button>` : ''}
+                    <button class="btn btn-primary btn-sm" onclick="App.showExpenseModal()"><i class="bi bi-plus"></i> Add Expense</button>
+                </div>
             </div>
-            ${expenses.length ? `<div class="table-wrap"><table>
+            ${expenses.length ? `
+            <div style="margin-bottom:0.75rem;">
+                <input type="text" class="form-control" style="max-width:320px;padding:6px 12px;font-size:0.875rem;" placeholder="Search expenses by title, category, or payer..." oninput="App.filterExpenses(this.value)">
+            </div>
+            <div class="table-wrap"><table>
                 <thead><tr><th>Title</th><th>Amount</th><th>Category</th><th>Paid By</th><th>Date</th></tr></thead>
-                <tbody>${expenses.map(e => `<tr>
-                    <td>${esc(e.title)}</td><td>₹${e.amount}</td><td>${e.category}</td>
+                <tbody id="expensesTableBody">${expenses.map(e => `<tr>
+                    <td>${esc(e.title)}</td><td><strong>₹${e.amount}</strong></td><td><span class="badge" style="background:var(--surface);border:1px solid var(--border);padding:2px 8px;border-radius:4px;">${esc(e.category)}</span></td>
                     <td>${esc(e.paidByName)}</td><td>${fmtDate(e.expenseDate)}</td>
                 </tr>`).join('')}</tbody></table></div>` :
                 '<div class="empty-state"><i class="bi bi-receipt"></i><p>No expenses yet</p></div>'}`;
+    },
+
+    exportExpensesCsv(tripId) {
+        API.expenses.list(tripId).then(expenses => {
+            if (!expenses || !expenses.length) {
+                App.toast('No expenses to export', 'warning');
+                return;
+            }
+            let csv = 'ID,Title,Amount (INR),Category,Paid By,Date\r\n';
+            expenses.forEach(e => {
+                const title = '"' + (e.title || '').replace(/"/g, '""') + '"';
+                const cat = '"' + (e.category || '').replace(/"/g, '""') + '"';
+                const paidBy = '"' + (e.paidByName || '').replace(/"/g, '""') + '"';
+                csv += `${e.id},${title},${e.amount},${cat},${paidBy},${e.expenseDate || ''}\r\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tripsync-expenses-${tripId}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            App.toast('Expenses exported to CSV successfully!', 'success');
+        }).catch(err => App.toast('Export failed: ' + err.message, 'error'));
+    },
+
+    filterExpenses(query) {
+        const q = (query || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('#expensesTableBody tr');
+        rows.forEach(r => {
+            const text = r.textContent.toLowerCase();
+            r.style.display = text.includes(q) ? '' : 'none';
+        });
     },
 
     async renderItinerary(el, tripId) {
