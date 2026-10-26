@@ -17,6 +17,18 @@
       "dest": "/src/main/webapp/js/$1"
     },
     {
+      "src": "/sw.js",
+      "dest": "/src/main/webapp/sw.js",
+      "headers": {
+        "cache-control": "public, max-age=0, must-revalidate",
+        "service-worker-allowed": "/"
+      }
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/src/main/webapp/manifest.json"
+    },
+    {
       "src": "/api/health",
       "dest": "/src/main/webapp/api/health/index.html"
     },

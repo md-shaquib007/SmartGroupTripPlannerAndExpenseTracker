@@ -199,9 +199,14 @@ const App = {
                 ${warning}
             </div>
             <h3 style="margin-bottom:.75rem">Who Owes Whom</h3>
-            ${settlements.length ? `<ul class="settlement-list">${settlements.map(s =>
-                `<li><strong>${esc(s.fromUserName)}</strong> owes <strong>₹${s.amount}</strong> to <strong>${esc(s.toUserName)}</strong></li>`
-            ).join('')}</ul>` : '<p class="empty-state">All settled up!</p>'}
+            ${settlements.length ? `<ul class="settlement-list">${settlements.map(s => `
+                <li style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:0.5rem;">
+                    <span><strong>${esc(s.fromUserName)}</strong> owes <strong>₹${s.amount}</strong> to <strong>${esc(s.toUserName)}</strong></span>
+                    <button class="btn btn-outline btn-sm" onclick="App.showUpiPayment('${esc(s.toUserName)}', ${s.amount}, '${tripId}')" style="margin-left:0.75rem;white-space:nowrap;">
+                        <i class="bi bi-qr-code"></i> Pay via UPI
+                    </button>
+                </li>
+            `).join('')}</ul>` : '<p class="empty-state">All settled up!</p>'}
             <h3 style="margin:1.5rem 0 .75rem">Members (${members.length})</h3>
             <div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Email</th></tr></thead>
             <tbody>${members.map(m => `<tr><td>${esc(m.userName)}</td><td>${m.role}</td><td>${esc(m.userEmail)}</td></tr>`).join('')}</tbody></table></div>`;
@@ -466,6 +471,28 @@ const App = {
     closeModal() {
         document.getElementById('modal').classList.add('hidden');
         document.getElementById('modalOverlay').classList.add('hidden');
+    },
+
+    showUpiPayment(toName, amount, tripId) {
+        const upiNote = `TripSync Trip #${tripId} Settlement`;
+        const upiUrl = `upi://pay?pn=${encodeURIComponent(toName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(upiNote)}`;
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
+        const body = `
+            <div style="text-align:center;padding:0.5rem 0;">
+                <p style="margin-bottom:0.75rem;font-size:1.1rem;">Settling <strong>₹${amount}</strong> with <strong>${esc(toName)}</strong></p>
+                <div style="display:inline-block;padding:12px;background:#ffffff;border-radius:12px;border:1px solid var(--border);margin-bottom:1rem;box-shadow:var(--shadow);">
+                    <img src="${qrUrl}" alt="UPI QR Code" style="width:200px;height:200px;display:block;">
+                </div>
+                <p class="text-muted" style="font-size:0.85rem;margin-bottom:1rem;">Scan with GPay, PhonePe, Paytm, BHIM or any UPI app</p>
+                <div class="modal-actions" style="justify-content:center;gap:0.75rem;">
+                    <a href="${upiUrl}" class="btn btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;">
+                        <i class="bi bi-phone"></i> Open UPI App
+                    </a>
+                    <button type="button" class="btn btn-outline" onclick="App.closeModal()">Close</button>
+                </div>
+            </div>
+        `;
+        this.showModal('UPI Payment & QR Code', body);
     },
 
     copyInvite(code) {

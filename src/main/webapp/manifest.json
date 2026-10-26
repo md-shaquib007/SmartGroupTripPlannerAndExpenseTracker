@@ -1,0 +1,16 @@
+{
+  "name": "TripSync – Smart Group Trip Planner",
+  "short_name": "TripSync",
+  "description": "One platform for college group trips — expenses, itineraries, checklists, and memories.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/compass.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
