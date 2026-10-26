@@ -12,4 +12,4 @@ COPY --from=build /app/target/tripsync.war /usr/local/tomcat/webapps/ROOT.war
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["catalina.sh", "run"]
+CMD ["sh", "-c", "sed -i -e \"s/port=\\\"8005\\\"/port=\\\"-1\\\"/\" -e \"s/port=\\\"8080\\\"/port=\\\"${PORT:-8080}\\\"/\" /usr/local/tomcat/conf/server.xml && catalina.sh run"]
